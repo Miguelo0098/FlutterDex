@@ -93,6 +93,13 @@ class RandomWordsState extends State<RandomWords>{
             tiles: tiles,
           )
           .toList();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
         },
       ),
     );
