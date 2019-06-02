@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:test_app/pokemon.dart';
 
 void main() => runApp(MaterialApp(
-    title: "Poke App",
+    title: "Pokedex",
     home: HomePage(),
     debugShowCheckedModeBanner: false,
   ));
@@ -14,7 +17,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  var url = "https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json"
+  var url = "https://raw.githubusercontent.com/Biuni/PokemonGO-Pokedex/master/pokedex.json";
+  PokeHub pokeHub;
 
   @override
   void initState() {
@@ -24,9 +28,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   fetchData() async {
-    var res = http.get(url);
+    var res = await http.get(url);
+    var decodedJson = jsonDecode(res.body);
 
-    print(res);
+    pokeHub = PokeHub.fromJson(decodedJson);
+    print(pokeHub.toJson());
+    setState(() {});
   }
 
 
@@ -38,8 +45,34 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.red,
       ),
 
-      body: Center(
-        child: Text("Hello From Pokemon App"),
+      body: pokeHub == null?Center(child: CircularProgressIndicator(),): GridView.count(
+        crossAxisCount: 2,
+        children: pokeHub.pokemon.map((poke)=> Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: Card(
+            elevation: 3.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Container(
+                  height: 100.0,
+                  width: 100.0,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(image: NetworkImage(poke.img))
+                  ),
+                ),
+
+                Text(
+                  poke.name,
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold
+                  ),
+                )
+              ],
+            ),
+          ),
+        )).toList(),
       ),
 
       drawer: Drawer(),
